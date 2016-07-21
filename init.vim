@@ -103,14 +103,8 @@ set noswapfile
 set nobackup
 set nowritebackup
 
-"easy align lynns:
+"easy align
 vnoremap <silent> <Enter> :EasyAlign<Enter>
-
-" Start interactive EasyAlign in visual mode
-" vmap <Enter> <Plug>(EasyAlign)
-
-" Start interactive EasyAlign with a Vim movement
-" nmap <Leader>a <Plug>(EasyAlign)
 
 " stop undo files
 set undofile
@@ -118,7 +112,6 @@ set undodir=~/.vim/undodir
 set undofile
 set undolevels=1000
 set undoreload=10000
-
 
 " hilight indention tabs
 hi NonText ctermfg=darkgrey guifg=#565656
@@ -155,7 +148,6 @@ set splitright                 " same as above but for horizontal splits
 
 set nottimeout "these two options together determine whether to wait to receive mapping
 set timeout
-
 set autowrite         " write the contents of the file on each :next, :rewind, :make, etc.
 set shiftround        " round indent to multiple of shiftwidth
 set autoread          " automatically read changes in files from outside of vim (git pull, etc.)
@@ -220,7 +212,6 @@ let NERDTreeDirArrows = 1
 " emoji
 set completefunc=emoji#complete
 
-
 " ----------------------------------------
 "delimitMate
 let g:delimitMate_expand_cr          = 1
@@ -233,9 +224,6 @@ let g:delimitMate_autoclose          = 1
 
 "Make Vim able to edit crontab files again.
 set backupskip=/tmp/*,/private/tmp/*
-
-"Save when losing focus
-"au FocusLost * :wa
 
 " Tabs, spaces, wrapping {{{
 set tabstop=2
@@ -251,15 +239,14 @@ set formatoptions=qrn1
 "folding settings {{{
 if v:version >= 600
   set nofoldenable
-  set foldmethod=marker   "fold based on indent
-  set printoptions=paper:letter
-  set sidescrolloff=5
-  set mouse=nvi
+  set foldmethod=indent   "fold based on indent
+  "set printoptions=paper:letter
+  "set sidescrolloff=5
+  "set mouse=nvi
 endif
 "}}}
 
 " Wildmenu completion {{{
-
 set wildmenu
 set wildmode=list:longest
 set wildignore+=.hg,.git,.svn                    " Version control
@@ -272,7 +259,6 @@ set wildignore+=*.DS_Store                       " OSX bullshit
 set wildignore+=*.luac                           " Lua byte code
 
 " }}}
-
 let g:session_autosave = 'no'
 
 "Python/Django
@@ -286,16 +272,12 @@ set wildignore=*.o,*.obj,.git,*.pyc,*~,fugitive*
 nnoremap <leader>l :nohls<CR><C-L>
 inoremap <leader>l <C-O>:nohls<CR>
 
+"turn syntastic checker off
+nnoremap <leader>z :SyntasticToggleMode
+
 "Clojure/Leiningen
 set wildignore+=classes
 set wildignore+=lib
-
-
-
-
-
-
-
 
 " Choosewin
 nmap  -  <Plug>(choosewin)
@@ -431,3 +413,8 @@ fu! CustomFoldText()
     let expansionString = repeat(".", w - strwidth(foldSizeStr.line.foldLevelStr.foldPercentage))
     return line . expansionString . foldSizeStr . foldPercentage . foldLevelStr
 endf
+
+au VimEnter * RainbowParenthesesToggle
+au Syntax * RainbowParenthesesLoadRound
+au Syntax * RainbowParenthesesLoadSquare
+au Syntax * RainbowParenthesesLoadBraces
