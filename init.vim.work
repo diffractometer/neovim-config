@@ -35,6 +35,7 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'Shougo/vimproc', {'do' : 'make'}
 
 "Plug 'flazz/vim-colorschemes'
+Plug 'mhartington/oceanic-next'
 Plug 'fmoralesc/vim-tutor-mode'
 Plug 'vim-scripts/ScrollColors'
 Plug 'freeo/vim-kalisi'
@@ -80,7 +81,8 @@ call plug#end()
 
 filetype plugin indent on     " Required!
 
-colorscheme kalisi
+"colorscheme kalisi
+colorscheme OceanicNext 
 set background=dark
 set t_Co=256
 " in case t_Co alone doesn't work, add this as well:
@@ -103,8 +105,14 @@ set noswapfile
 set nobackup
 set nowritebackup
 
-"easy align
+"easy align lynns:
 vnoremap <silent> <Enter> :EasyAlign<Enter>
+
+" Start interactive EasyAlign in visual mode
+" vmap <Enter> <Plug>(EasyAlign)
+
+" Start interactive EasyAlign with a Vim movement
+" nmap <Leader>a <Plug>(EasyAlign)
 
 " stop undo files
 set undofile
@@ -112,6 +120,7 @@ set undodir=~/.vim/undodir
 set undofile
 set undolevels=1000
 set undoreload=10000
+
 
 " hilight indention tabs
 hi NonText ctermfg=darkgrey guifg=#565656
@@ -148,6 +157,7 @@ set splitright                 " same as above but for horizontal splits
 
 set nottimeout "these two options together determine whether to wait to receive mapping
 set timeout
+
 set autowrite         " write the contents of the file on each :next, :rewind, :make, etc.
 set shiftround        " round indent to multiple of shiftwidth
 set autoread          " automatically read changes in files from outside of vim (git pull, etc.)
@@ -202,6 +212,8 @@ call NERDTreeHighlightFile('coffee', 'Red', 'none', 'red', '#151515')
 call NERDTreeHighlightFile('js', 'Red', 'none', '#ff00ff', '#151515')
 call NERDTreeHighlightFile('php', 'Magenta', 'none', '#ff00ff', '#151515')
 
+"Syntastic Toggle
+nmap <leader>z :SyntasticToggleMode
 "NERDTree
 nmap <silent> <C-a> :NERDTreeToggle<CR>
 let NERDTreeHighlightCursorline=1
@@ -211,6 +223,7 @@ let NERDTreeDirArrows = 1
 
 " emoji
 set completefunc=emoji#complete
+
 
 " ----------------------------------------
 "delimitMate
@@ -224,6 +237,9 @@ let g:delimitMate_autoclose          = 1
 
 "Make Vim able to edit crontab files again.
 set backupskip=/tmp/*,/private/tmp/*
+
+"Save when losing focus
+"au FocusLost * :wa
 
 " Tabs, spaces, wrapping {{{
 set tabstop=2
@@ -239,14 +255,15 @@ set formatoptions=qrn1
 "folding settings {{{
 if v:version >= 600
   set nofoldenable
-  set foldmethod=indent   "fold based on indent
-  "set printoptions=paper:letter
-  "set sidescrolloff=5
-  "set mouse=nvi
+  set foldmethod=marker   "fold based on indent
+  set printoptions=paper:letter
+  set sidescrolloff=5
+  set mouse=nvi
 endif
 "}}}
 
 " Wildmenu completion {{{
+
 set wildmenu
 set wildmode=list:longest
 set wildignore+=.hg,.git,.svn                    " Version control
@@ -259,6 +276,7 @@ set wildignore+=*.DS_Store                       " OSX bullshit
 set wildignore+=*.luac                           " Lua byte code
 
 " }}}
+
 let g:session_autosave = 'no'
 
 "Python/Django
@@ -272,36 +290,45 @@ set wildignore=*.o,*.obj,.git,*.pyc,*~,fugitive*
 nnoremap <leader>l :nohls<CR><C-L>
 inoremap <leader>l <C-O>:nohls<CR>
 
-"turn syntastic checker off
-nnoremap <leader>z :SyntasticToggleMode
-
 "Clojure/Leiningen
 set wildignore+=classes
 set wildignore+=lib
+
 
 " Choosewin
 nmap  -  <Plug>(choosewin)
 let g:choosewin_overlay_enable=1
 
+" terminal switch win
+tnoremap <leader>e <C-\><C-n>
+"tnoremap <A-h> <C-\><C-n><C-w>h
+"tnoremap <A-j> <C-\><C-n><C-w>j
+"tnoremap <A-k> <C-\><C-n><C-w>k
+"tnoremap <A-l> <C-\><C-n><C-w>l
+"nnoremap <A-h> <C-w>h
+"nnoremap <A-j> <C-w>j
+"nnoremap <A-k> <C-w>k
+"nnoremap <A-l> <C-w>l
+
 " - - - - - - - - - - - - - - - - - - - -
 " unite
-"call unite#filters#matcher_default#use(['matcher_fuzzy'])
-"call unite#filters#sorter_default#use(['sorter_rank'])
+call unite#filters#matcher_default#use(['matcher_fuzzy'])
+call unite#filters#sorter_default#use(['sorter_rank'])
 
 " OSX needs this...
 let g:ycm_path_to_python_interpreter = '/usr/bin/python'
 
-"let g:unite_source_history_yank_enable = 1
-"let g:unite_force_overwrite_statusline = 0
-"if executable('ag')
-    "let g:unite_source_grep_command = 'ag'
-    "let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
-    "let g:unite_source_grep_recursive_opt = ''
-"endif
+let g:unite_source_history_yank_enable = 1
+let g:unite_force_overwrite_statusline = 0
+if executable('ag')
+    let g:unite_source_grep_command = 'ag'
+    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
+    let g:unite_source_grep_recursive_opt = ''
+endif
 
-call unite#custom#source('grep', 'ignore_pattern', 'node_modules/\|bower_components/')
+call unite#custom#source('grep', 'ignore_pattern', 'node_modules/\|dist/')
 
-"call unite#custom#source('file_rec,file_rec/async,file_mru,file,buffer,grep',
+"call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
     "\ 'ignore_pattern', join([
         "\ '\.git/',
         "\ '\.sass-cache/',
@@ -354,7 +381,7 @@ nnoremap [unite]rs :Unite -no-split -start-insert -input=spec/ file_rec/async<cr
 
 " Grepping
 nnoremap [unite]g :Unite -no-split grep:.<cr>
-nnoremap [unite]d :Unite -no-split grep:.:-s:\(TODO\|FIXME\)<cr>
+" nnoremap [unite]d :Unite -no-split grep:.:-s:\(TODO\|FIXME\)<cr>
 
 " Content
 nnoremap [unite]o :Unite -no-split -start-insert -auto-preview outline<cr>
@@ -369,6 +396,11 @@ nnoremap [unite]m :Unite -no-split file_mru<cr>
 " Yank history
 nnoremap [unite]y :Unite -no-split history/yank<cr>
 
+" rainbos 
+au VimEnter *.clj RainbowParenthesesToggle
+au Syntax *.clj RainbowParenthesesLoadRound
+au Syntax *.clj RainbowParenthesesLoadSquare
+au Syntax *.clj RainbowParenthesesLoadBraces
 
 " - - - - - - - - - - - - - - - - - - - -
 "for better split navigation
@@ -415,8 +447,3 @@ fu! CustomFoldText()
     let expansionString = repeat(".", w - strwidth(foldSizeStr.line.foldLevelStr.foldPercentage))
     return line . expansionString . foldSizeStr . foldPercentage . foldLevelStr
 endf
-
-au VimEnter * RainbowParenthesesToggle
-au Syntax * RainbowParenthesesLoadRound
-au Syntax * RainbowParenthesesLoadSquare
-au Syntax * RainbowParenthesesLoadBraces
