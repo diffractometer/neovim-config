@@ -33,8 +33,9 @@ endif
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'Shougo/vimproc', {'do' : 'make'}
-
-"Plug 'flazz/vim-colorschemes'
+Plug 'neovim/node-host'
+Plug 'snoe/nvim-parinfer.js'
+Plug 'mhartington/oceanic-next'
 Plug 'fmoralesc/vim-tutor-mode'
 Plug 'vim-scripts/ScrollColors'
 Plug 'freeo/vim-kalisi'
@@ -80,7 +81,8 @@ call plug#end()
 
 filetype plugin indent on     " Required!
 
-colorscheme kalisi
+"colorscheme kalisi
+colorscheme OceanicNext 
 set background=dark
 set t_Co=256
 " in case t_Co alone doesn't work, add this as well:
@@ -298,14 +300,15 @@ nmap  -  <Plug>(choosewin)
 let g:choosewin_overlay_enable=1
 
 " terminal switch win
-tnoremap <A-h> <C-\><C-n><C-w>h
-tnoremap <A-j> <C-\><C-n><C-w>j
-tnoremap <A-k> <C-\><C-n><C-w>k
-tnoremap <A-l> <C-\><C-n><C-w>l
-nnoremap <A-h> <C-w>h
-nnoremap <A-j> <C-w>j
-nnoremap <A-k> <C-w>k
-nnoremap <A-l> <C-w>l
+tnoremap <leader>e <C-\><C-n>
+"tnoremap <A-h> <C-\><C-n><C-w>h
+"tnoremap <A-j> <C-\><C-n><C-w>j
+"tnoremap <A-k> <C-\><C-n><C-w>k
+"tnoremap <A-l> <C-\><C-n><C-w>l
+"nnoremap <A-h> <C-w>h
+"nnoremap <A-j> <C-w>j
+"nnoremap <A-k> <C-w>k
+"nnoremap <A-l> <C-w>l
 
 " - - - - - - - - - - - - - - - - - - - -
 " unite
@@ -313,7 +316,7 @@ call unite#filters#matcher_default#use(['matcher_fuzzy'])
 call unite#filters#sorter_default#use(['sorter_rank'])
 
 " OSX needs this...
-let g:ycm_path_to_python_interpreter = '/usr/bin/python'
+let g:ycm_path_to_python_interpreter = '/usr/local/bin/python'
 
 let g:unite_source_history_yank_enable = 1
 let g:unite_force_overwrite_statusline = 0
@@ -323,7 +326,7 @@ if executable('ag')
     let g:unite_source_grep_recursive_opt = ''
 endif
 
-call unite#custom#source('grep', 'ignore_pattern', 'node_modules/\|bower_components/')
+call unite#custom#source('grep', 'ignore_pattern', 'node_modules/\|dist/')
 
 "call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
     "\ 'ignore_pattern', join([
@@ -378,7 +381,7 @@ nnoremap [unite]rs :Unite -no-split -start-insert -input=spec/ file_rec/async<cr
 
 " Grepping
 nnoremap [unite]g :Unite -no-split grep:.<cr>
-nnoremap [unite]d :Unite -no-split grep:.:-s:\(TODO\|FIXME\)<cr>
+" nnoremap [unite]d :Unite -no-split grep:.:-s:\(TODO\|FIXME\)<cr>
 
 " Content
 nnoremap [unite]o :Unite -no-split -start-insert -auto-preview outline<cr>
@@ -393,7 +396,7 @@ nnoremap [unite]m :Unite -no-split file_mru<cr>
 " Yank history
 nnoremap [unite]y :Unite -no-split history/yank<cr>
 
-" rainbos
+" rainbos 
 au VimEnter *.clj RainbowParenthesesToggle
 au Syntax *.clj RainbowParenthesesLoadRound
 au Syntax *.clj RainbowParenthesesLoadSquare
