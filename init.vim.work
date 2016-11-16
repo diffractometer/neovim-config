@@ -33,8 +33,8 @@ endif
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'Shougo/vimproc', {'do' : 'make'}
-
-"Plug 'flazz/vim-colorschemes'
+Plug 'neovim/node-host'
+Plug 'snoe/nvim-parinfer.js'
 Plug 'mhartington/oceanic-next'
 Plug 'fmoralesc/vim-tutor-mode'
 Plug 'vim-scripts/ScrollColors'
@@ -81,15 +81,14 @@ call plug#end()
 
 filetype plugin indent on     " Required!
 
-"colorscheme kalisi
 colorscheme OceanicNext 
 set background=dark
 set t_Co=256
 " in case t_Co alone doesn't work, add this as well:
 let &t_AB="\e[48;5;%dm"
 let &t_AF="\e[38;5;%dm"
-"let g:airline_theme="kalisi"
 let g:airline_theme='oceanicnext'
+"let g:airline_theme="kalisi"
 
 " Numbers and Borders`
 set number
@@ -242,7 +241,6 @@ set backupskip=/tmp/*,/private/tmp/*
 "Save when losing focus
 "au FocusLost * :wa
 
-
 " Tabs, spaces, wrapping {{{
 set tabstop=2
 set shiftwidth=2
@@ -296,6 +294,7 @@ inoremap <leader>l <C-O>:nohls<CR>
 set wildignore+=classes
 set wildignore+=lib
 
+
 " Choosewin
 nmap  -  <Plug>(choosewin)
 let g:choosewin_overlay_enable=1
@@ -311,98 +310,14 @@ tnoremap <leader>e <C-\><C-n>
 "nnoremap <A-k> <C-w>k
 "nnoremap <A-l> <C-w>l
 
-" OSX needs this...?
-let g:ycm_path_to_python_interpreter = '/usr/bin/python'
-
-" - - - - - - - - - - - - - - - - - - - -
-" unite
-"call unite#filters#matcher_default#use(['matcher_fuzzy'])
-"call unite#filters#sorter_default#use(['sorter_rank'])
-
-"let g:unite_source_history_yank_enable = 1
-"let g:unite_force_overwrite_statusline = 0
-"if executable('ag')
-    "let g:unite_source_grep_command = 'ag'
-    "let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
-    "let g:unite_source_grep_recursive_opt = ''
-"endif
-
-""call unite#custom#source('grep', 'ignore_pattern', 'node_modules/\|dist/')
-
-"call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
-    "\ 'ignore_pattern', join([
-        "\ '\.git/',
-        "\ '\.sass-cache/',
-        "\ '\.tmp/',
-        "\ '\log',
-        "\ '\dist',
-        "\ '\target',
-        "\ '\tmp',
-        "\ '\vendor/',
-        "\ '\node_modules/',
-    "\ ], '\|'))
-
-" Custom mappings for the unite buffer
-"autocmd FileType unite call s:unite_settings()
-"function! s:unite_settings()
-"" these three:
-""   imap <buffer> <C-j> <Plug>(unite_select_next_line)
-""   imap <buffer> <C-k> <Plug>(unite_select_previous_line)
-""   imap <buffer> <c-a> <Plug>(unite_choose_action)
-"" are the same as:
-""   imap <buffer> <C-j> <C-n>
-""   imap <buffer> <C-k> <C-p>
-""   imap <buffer> <c-a> <cr>
-    "imap <silent><buffer><expr> <C-s> unite#do_action('split')
-    "imap <silent><buffer><expr> <C-v> unite#do_action('vsplit')
-""   imap <silent><buffer><expr> <C-t> unite#do_action('tabopen')
-    "nmap <buffer> <ESC> <Plug>(unite_exit)
-"endfunction
+" OSX needs this...
+let g:ycm_path_to_python_interpreter = '/usr/local/bin/python'
 
 " General search
-" nnoremap <leader>/ :Unite -no-quit -keep-focus grep:.<cr>
 nnoremap <leader>/ :Unite -no-quit -keep-focus grep
 nnoremap <leader>b :Unite -no-split -buffer-name=buffer -start-insert buffer<cr>
-" The prefix key
-"nnoremap [unite] <Nop>
-"nmap <space> [unite]
-"nmap <leader>u [unite]
 
-" General purpose
-"nnoremap [unite]u :Unite -no-split -start-insert source<cr>
-"nnoremap [unite]u :Unite -no-split source<cr>
-
-
-" Files
-"nnoremap [unite]f :Unite -no-split -start-insert file_rec/async<cr>
-
-" Files in rails
-"nnoremap [unite]rm :Unite -no-split -start-insert -input=app/models/ file_rec/async<cr>
-"nnoremap [unite]rv :Unite -no-split -start-insert -input=app/views/ file_rec/async<cr>
-"nnoremap [unite]ra :Unite -no-split -start-insert -input=app/assets/ file_rec/async<cr>
-"nnoremap [unite]rs :Unite -no-split -start-insert -input=spec/ file_rec/async<cr>
-
-" Grepping
-"nnoremap [unite]g :Unite -no-split grep:.<cr>
-" nnoremap [unite]d :Unite -no-split grep:.:-s:\(TODO\|FIXME\)<cr>
-
-" Content
-"nnoremap [unite]o :Unite -no-split -start-insert -auto-preview outline<cr>
-"nnoremap [unite]l :Unite -no-split -start-insert line<cr>
-"nnoremap [unite]t :!retag<cr>:Unite -no-split -auto-preview -start-insert tag<cr>
-
-" Quickly switch between recent things
-"nnoremap [unite]F :Unite -no-split buffer tab file_mru directory_mru<cr>
-"nnoremap [unite]b :Unite -no-split buffer<cr>
-"nnoremap [unite]m :Unite -no-split file_mru<cr>
-
-" Yank history
-"nnoremap [unite]y :Unite -no-split history/yank<cr>
-
-" - - - - - - - - - - - - - - - - - - - -
-
-
-" rainbow parans
+" rainbos 
 au VimEnter *.clj RainbowParenthesesToggle
 au Syntax *.clj RainbowParenthesesLoadRound
 au Syntax *.clj RainbowParenthesesLoadSquare
@@ -453,3 +368,14 @@ fu! CustomFoldText()
     let expansionString = repeat(".", w - strwidth(foldSizeStr.line.foldLevelStr.foldPercentage))
     return line . expansionString . foldSizeStr . foldPercentage . foldLevelStr
 endf
+
+" == Auto commands ==
+autocmd BufWritePre * :call s:StripTrailingWhitespaces()                  "Auto-remove trailing spaces
+
+" == my functions == 
+function! s:StripTrailingWhitespaces()
+    let l:l = line(".")
+    let l:c = col(".")
+    %s/\s\+$//e
+    call cursor(l:l, l:c)
+endfunction
