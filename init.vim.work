@@ -6,6 +6,9 @@ let mapleader = ","
 set guifont=Source\ Code\ Pro\ for\ Powerline:h13
 let g:airline_powerline_fonts = 1
 
+"disable parinfer
+"let g:parinfer_mode = "off"
+
 if has('vim_starting')
   if &compatible
     set nocompatible " Be iMproved
@@ -30,8 +33,25 @@ if !filereadable(s:vim_plug_dir.'/plug.vim')
     let s:install_plug=1
 endif
 
+"vim markdown
+function! BuildComposer(info)
+  if a:info.status != 'unchanged' || a:info.force
+    !cargo build --release
+  endif
+endfunction
+
 call plug#begin('~/.config/nvim/plugged')
 
+" colorschemes ;)
+Plug 'liuchengxu/space-vim-dark'
+Plug 'reedes/vim-colors-pencil'
+Plug 'junegunn/seoul256.vim'
+Plug 'mhinz/vim-janah'
+
+" markdown
+Plug 'euclio/vim-markdown-composer', { 'do': function('BuildComposer') }
+
+" useful stuff
 Plug 'Shougo/vimproc', {'do' : 'make'}
 Plug 'neovim/node-host'
 Plug 'snoe/nvim-parinfer.js'
@@ -39,7 +59,6 @@ Plug 'mhartington/oceanic-next'
 Plug 'fmoralesc/vim-tutor-mode'
 Plug 'vim-scripts/ScrollColors'
 Plug 'freeo/vim-kalisi'
-Plug 'junegunn/seoul256.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'sudar/vim-arduino-syntax'
 Plug 'blarghmatey/split-expander'
@@ -64,6 +83,10 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'scrooloose/syntastic'
 Plug 'xolox/vim-notes'
 Plug 'junegunn/vim-emoji'
+Plug 'morhetz/gruvbox'
+
+" utilities
+Plug 'dkprice/vim-easygrep'
 
 "clojure
 Plug 'tpope/vim-classpath'
@@ -81,8 +104,12 @@ call plug#end()
 
 filetype plugin indent on     " Required!
 
-colorscheme OceanicNext 
-set background=dark
+"set background=dark
+"colorscheme OceanicNext
+"colorscheme space-vim-dark
+"colorscheme gruvbox
+autocmd ColorScheme janah highlight Normal ctermbg=235
+colorscheme janah
 set t_Co=256
 " in case t_Co alone doesn't work, add this as well:
 let &t_AB="\e[48;5;%dm"
@@ -300,7 +327,8 @@ nmap  -  <Plug>(choosewin)
 let g:choosewin_overlay_enable=1
 
 " terminal switch win
-tnoremap <leader>e <C-\><C-n>
+"tnoremap <leader>e <C-\><C-n>
+tnoremap <Esc> <C-\><C-n>
 "tnoremap <A-h> <C-\><C-n><C-w>h
 "tnoremap <A-j> <C-\><C-n><C-w>j
 "tnoremap <A-k> <C-\><C-n><C-w>k
@@ -317,7 +345,7 @@ let g:ycm_path_to_python_interpreter = '/usr/local/bin/python'
 nnoremap <leader>/ :Unite -no-quit -keep-focus grep
 nnoremap <leader>b :Unite -no-split -buffer-name=buffer -start-insert buffer<cr>
 
-" rainbos 
+" rainbos
 au VimEnter *.clj RainbowParenthesesToggle
 au Syntax *.clj RainbowParenthesesLoadRound
 au Syntax *.clj RainbowParenthesesLoadSquare
@@ -336,15 +364,15 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 set noea
 
-let g:tmux_navigator_no_mappings = 1
+"let g:tmux_navigator_no_mappings = 1
 
-nnoremap <silent> {Left-mapping} :TmuxNavigateLeft<cr>
-nnoremap <silent> {Down-Mapping} :TmuxNavigateDown<cr>
-nnoremap <silent> {Up-Mapping} :TmuxNavigateUp<cr>
-nnoremap <silent> {Right-Mapping} :TmuxNavigateRight<cr>
-nnoremap <silent> {Previous-Mapping} :TmuxNavigatePrevious<cr>
+"nnoremap <silent> {Left-mapping} :TmuxNavigateLeft<cr>
+"nnoremap <silent> {Down-Mapping} :TmuxNavigateDown<cr>
+"nnoremap <silent> {Up-Mapping} :TmuxNavigateUp<cr>
+"nnoremap <silent> {Right-Mapping} :TmuxNavigateRight<cr>
+"nnoremap <silent> {Previous-Mapping} :TmuxNavigatePrevious<cr>
 
-let g:tmux_navigator_save_on_switch = 1
+"let g:tmux_navigator_save_on_switch = 1
 
 :let g:session_autoload = 'no'
 
@@ -372,10 +400,15 @@ endf
 " == Auto commands ==
 autocmd BufWritePre * :call s:StripTrailingWhitespaces()                  "Auto-remove trailing spaces
 
-" == my functions == 
+" == Strip trailing whitespace ==
 function! s:StripTrailingWhitespaces()
     let l:l = line(".")
     let l:c = col(".")
     %s/\s\+$//e
     call cursor(l:l, l:c)
 endfunction
+
+" == Navigation
+nnoremap <leader>d :$
+
+autocmd! FileType clojure,scheme,lisp,racket,hy :autocmd! Parinfer BufEnter <buffer>
