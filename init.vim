@@ -6,6 +6,14 @@ let mapleader = ","
 set guifont=Source\ Code\ Pro\ for\ Powerline:h13
 let g:airline_powerline_fonts = 1
 
+"disable parinfer
+"let g:parinfer_mode = "off"
+
+augroup Parinfer
+  autocmd FileType clojure,scheme,lisp,racket,hy
+        \ :autocmd! Parinfer BufEnter <buffer>
+augroup END
+
 if has('vim_starting')
   if &compatible
     set nocompatible " Be iMproved
@@ -30,15 +38,33 @@ if !filereadable(s:vim_plug_dir.'/plug.vim')
     let s:install_plug=1
 endif
 
+"vim markdown
+function! BuildComposer(info)
+  if a:info.status != 'unchanged' || a:info.force
+    !cargo build --release
+  endif
+endfunction
+
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'Shougo/vimproc', {'do' : 'make'}
+" colorschemes ;)
+Plug 'liuchengxu/space-vim-dark'
+Plug 'reedes/vim-colors-pencil'
+Plug 'junegunn/seoul256.vim'
+Plug 'mhinz/vim-janah'
+Plug 'owickstrom/vim-colors-paramount'
 
-"Plug 'flazz/vim-colorschemes'
+" markdown
+Plug 'euclio/vim-markdown-composer', { 'do': function('BuildComposer') }
+
+" useful stuff
+Plug 'Shougo/vimproc', {'do' : 'make'}
+Plug 'neovim/node-host', { 'tag': 'v0.0.1', 'do': 'npm install -g neovim' }
+Plug 'snoe/nvim-parinfer.js'
+Plug 'mhartington/oceanic-next'
 Plug 'fmoralesc/vim-tutor-mode'
 Plug 'vim-scripts/ScrollColors'
 Plug 'freeo/vim-kalisi'
-Plug 'junegunn/seoul256.vim'
 Plug 'vimwiki/vimwiki'
 Plug 'sudar/vim-arduino-syntax'
 Plug 'blarghmatey/split-expander'
@@ -63,6 +89,10 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'scrooloose/syntastic'
 Plug 'xolox/vim-notes'
 Plug 'junegunn/vim-emoji'
+Plug 'morhetz/gruvbox'
+
+" utilities
+Plug 'dkprice/vim-easygrep'
 
 "clojure
 Plug 'tpope/vim-classpath'
@@ -80,12 +110,17 @@ call plug#end()
 
 filetype plugin indent on     " Required!
 
-colorscheme kalisi
 set background=dark
+"autocmd ColorScheme janah highlight Normal ctermbg=235
+"colorscheme paramount
+colorscheme janah
+"colorscheme space-vim-dark
+hi Comment cterm=italic
 set t_Co=256
 " in case t_Co alone doesn't work, add this as well:
 let &t_AB="\e[48;5;%dm"
 let &t_AF="\e[38;5;%dm"
+let g:airline_theme='oceanicnext'
 let g:airline_theme="kalisi"
 
 " Numbers and Borders`
@@ -103,8 +138,14 @@ set noswapfile
 set nobackup
 set nowritebackup
 
-"easy align
+"easy align lynns:
 vnoremap <silent> <Enter> :EasyAlign<Enter>
+
+" Start interactive EasyAlign in visual mode
+" vmap <Enter> <Plug>(EasyAlign)
+
+" Start interactive EasyAlign with a Vim movement
+" nmap <Leader>a <Plug>(EasyAlign)
 
 " stop undo files
 set undofile
@@ -112,6 +153,7 @@ set undodir=~/.vim/undodir
 set undofile
 set undolevels=1000
 set undoreload=10000
+
 
 " hilight indention tabs
 hi NonText ctermfg=darkgrey guifg=#565656
@@ -148,6 +190,7 @@ set splitright                 " same as above but for horizontal splits
 
 set nottimeout "these two options together determine whether to wait to receive mapping
 set timeout
+
 set autowrite         " write the contents of the file on each :next, :rewind, :make, etc.
 set shiftround        " round indent to multiple of shiftwidth
 set autoread          " automatically read changes in files from outside of vim (git pull, etc.)
@@ -202,6 +245,8 @@ call NERDTreeHighlightFile('coffee', 'Red', 'none', 'red', '#151515')
 call NERDTreeHighlightFile('js', 'Red', 'none', '#ff00ff', '#151515')
 call NERDTreeHighlightFile('php', 'Magenta', 'none', '#ff00ff', '#151515')
 
+"Syntastic Toggle
+nmap <leader>z :SyntasticToggleMode
 "NERDTree
 nmap <silent> <C-a> :NERDTreeToggle<CR>
 let NERDTreeHighlightCursorline=1
@@ -211,6 +256,7 @@ let NERDTreeDirArrows = 1
 
 " emoji
 set completefunc=emoji#complete
+
 
 " ----------------------------------------
 "delimitMate
@@ -224,6 +270,9 @@ let g:delimitMate_autoclose          = 1
 
 "Make Vim able to edit crontab files again.
 set backupskip=/tmp/*,/private/tmp/*
+
+"Save when losing focus
+"au FocusLost * :wa
 
 " Tabs, spaces, wrapping {{{
 set tabstop=2
@@ -239,14 +288,15 @@ set formatoptions=qrn1
 "folding settings {{{
 if v:version >= 600
   set nofoldenable
-  set foldmethod=indent   "fold based on indent
-  "set printoptions=paper:letter
-  "set sidescrolloff=5
-  "set mouse=nvi
+  set foldmethod=marker   "fold based on indent
+  set printoptions=paper:letter
+  set sidescrolloff=5
+  set mouse=nvi
 endif
 "}}}
 
 " Wildmenu completion {{{
+
 set wildmenu
 set wildmode=list:longest
 set wildignore+=.hg,.git,.svn                    " Version control
@@ -259,6 +309,7 @@ set wildignore+=*.DS_Store                       " OSX bullshit
 set wildignore+=*.luac                           " Lua byte code
 
 " }}}
+
 let g:session_autosave = 'no'
 
 "Python/Django
@@ -272,101 +323,39 @@ set wildignore=*.o,*.obj,.git,*.pyc,*~,fugitive*
 nnoremap <leader>l :nohls<CR><C-L>
 inoremap <leader>l <C-O>:nohls<CR>
 
-"turn syntastic checker off
-nnoremap <leader>z :SyntasticToggleMode
-
 "Clojure/Leiningen
 set wildignore+=classes
 set wildignore+=lib
+
 
 " Choosewin
 nmap  -  <Plug>(choosewin)
 let g:choosewin_overlay_enable=1
 
-" - - - - - - - - - - - - - - - - - - - -
-" unite
-call unite#filters#matcher_default#use(['matcher_fuzzy'])
-call unite#filters#sorter_default#use(['sorter_rank'])
+" terminal switch win
+"tnoremap <leader>e <C-\><C-n>
+tnoremap <Esc> <C-\><C-n>
+"tnoremap <A-h> <C-\><C-n><C-w>h
+"tnoremap <A-j> <C-\><C-n><C-w>j
+"tnoremap <A-k> <C-\><C-n><C-w>k
+"tnoremap <A-l> <C-\><C-n><C-w>l
+"nnoremap <A-h> <C-w>h
+"nnoremap <A-j> <C-w>j
+"nnoremap <A-k> <C-w>k
+"nnoremap <A-l> <C-w>l
 
 " OSX needs this...
-let g:ycm_path_to_python_interpreter = '/usr/bin/python'
-
-let g:unite_source_history_yank_enable = 1
-let g:unite_force_overwrite_statusline = 0
-if executable('ag')
-    let g:unite_source_grep_command = 'ag'
-    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
-    let g:unite_source_grep_recursive_opt = ''
-endif
-
-call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
-    \ 'ignore_pattern', join([
-        \ '\.git/',
-        \ '\.sass-cache/',
-        \ '\.tmp/',
-        \ '\log',
-        \ '\tmp',
-        \ '\vendor/',
-        \ '\node_modules/',
-    \ ], '\|'))
-
-" Custom mappings for the unite buffer
-autocmd FileType unite call s:unite_settings()
-function! s:unite_settings()
-" these three:
-"   imap <buffer> <C-j> <Plug>(unite_select_next_line)
-"   imap <buffer> <C-k> <Plug>(unite_select_previous_line)
-"   imap <buffer> <c-a> <Plug>(unite_choose_action)
-" are the same as:
-"   imap <buffer> <C-j> <C-n>
-"   imap <buffer> <C-k> <C-p>
-"   imap <buffer> <c-a> <cr>
-    imap <silent><buffer><expr> <C-s> unite#do_action('split')
-    imap <silent><buffer><expr> <C-v> unite#do_action('vsplit')
-"   imap <silent><buffer><expr> <C-t> unite#do_action('tabopen')
-    nmap <buffer> <ESC> <Plug>(unite_exit)
-endfunction
+let g:ycm_path_to_python_interpreter = '/usr/local/bin/python'
 
 " General search
-nnoremap <leader>/ :Unite -no-quit -keep-focus grep:.<cr>
-
-" The prefix key
-nnoremap [unite] <Nop>
-"nmap <space> [unite]
-nmap <leader>u [unite]
-
-" General purpose
-"nnoremap [unite]u :Unite -no-split -start-insert source<cr>
-nnoremap [unite]u :Unite -no-split source<cr>
-
+nnoremap <leader>/ :Unite -no-quit -keep-focus grep
 nnoremap <leader>b :Unite -no-split -buffer-name=buffer -start-insert buffer<cr>
 
-" Files
-nnoremap [unite]f :Unite -no-split -start-insert file_rec/async<cr>
-
-" Files in rails
-nnoremap [unite]rm :Unite -no-split -start-insert -input=app/models/ file_rec/async<cr>
-nnoremap [unite]rv :Unite -no-split -start-insert -input=app/views/ file_rec/async<cr>
-nnoremap [unite]ra :Unite -no-split -start-insert -input=app/assets/ file_rec/async<cr>
-nnoremap [unite]rs :Unite -no-split -start-insert -input=spec/ file_rec/async<cr>
-
-" Grepping
-nnoremap [unite]g :Unite -no-split grep:.<cr>
-nnoremap [unite]d :Unite -no-split grep:.:-s:\(TODO\|FIXME\)<cr>
-
-" Content
-nnoremap [unite]o :Unite -no-split -start-insert -auto-preview outline<cr>
-nnoremap [unite]l :Unite -no-split -start-insert line<cr>
-nnoremap [unite]t :!retag<cr>:Unite -no-split -auto-preview -start-insert tag<cr>
-
-" Quickly switch between recent things
-nnoremap [unite]F :Unite -no-split buffer tab file_mru directory_mru<cr>
-nnoremap [unite]b :Unite -no-split buffer<cr>
-nnoremap [unite]m :Unite -no-split file_mru<cr>
-
-" Yank history
-nnoremap [unite]y :Unite -no-split history/yank<cr>
-
+" rainbos
+au VimEnter *.clj RainbowParenthesesToggle
+au Syntax *.clj RainbowParenthesesLoadRound
+au Syntax *.clj RainbowParenthesesLoadSquare
+au Syntax *.clj RainbowParenthesesLoadBraces
 
 " - - - - - - - - - - - - - - - - - - - -
 "for better split navigation
@@ -381,15 +370,15 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 set noea
 
-let g:tmux_navigator_no_mappings = 1
+"let g:tmux_navigator_no_mappings = 1
 
-nnoremap <silent> {Left-mapping} :TmuxNavigateLeft<cr>
-nnoremap <silent> {Down-Mapping} :TmuxNavigateDown<cr>
-nnoremap <silent> {Up-Mapping} :TmuxNavigateUp<cr>
-nnoremap <silent> {Right-Mapping} :TmuxNavigateRight<cr>
-nnoremap <silent> {Previous-Mapping} :TmuxNavigatePrevious<cr>
+"nnoremap <silent> {Left-mapping} :TmuxNavigateLeft<cr>
+"nnoremap <silent> {Down-Mapping} :TmuxNavigateDown<cr>
+"nnoremap <silent> {Up-Mapping} :TmuxNavigateUp<cr>
+"nnoremap <silent> {Right-Mapping} :TmuxNavigateRight<cr>
+"nnoremap <silent> {Previous-Mapping} :TmuxNavigatePrevious<cr>
 
-let g:tmux_navigator_save_on_switch = 1
+"let g:tmux_navigator_save_on_switch = 1
 
 :let g:session_autoload = 'no'
 
@@ -414,7 +403,18 @@ fu! CustomFoldText()
     return line . expansionString . foldSizeStr . foldPercentage . foldLevelStr
 endf
 
-au VimEnter * RainbowParenthesesToggle
-au Syntax * RainbowParenthesesLoadRound
-au Syntax * RainbowParenthesesLoadSquare
-au Syntax * RainbowParenthesesLoadBraces
+" == Auto commands ==
+autocmd BufWritePre * :call s:StripTrailingWhitespaces()                  "Auto-remove trailing spaces
+
+" == Strip trailing whitespace ==
+function! s:StripTrailingWhitespaces()
+    let l:l = line(".")
+    let l:c = col(".")
+    %s/\s\+$//e
+    call cursor(l:l, l:c)
+endfunction
+
+" == Navigation
+nnoremap <leader>d :$
+
+autocmd! FileType clojure,scheme,lisp,racket,hy :autocmd! Parinfer BufEnter <buffer>
